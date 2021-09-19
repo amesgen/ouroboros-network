@@ -50,6 +50,7 @@ import qualified Data.Map.Strict as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Monoid (Sum (..))
 import           Data.Monoid.Synchronisation (FirstToFinish (..))
+import           Data.Singletons
 import qualified Data.Set as Set
 import           Data.Typeable (Typeable)
 import           Data.Void (Void)
@@ -68,12 +69,14 @@ import qualified Network.Mux as Mux
 import           Network.Mux.Types (MuxRuntimeError)
 import qualified Network.Socket as Socket
 import           Network.TypedProtocol.Core
+import           Network.TypedProtocol.Peer
 
 import           Network.TypedProtocol.ReqResp.Client
 import           Network.TypedProtocol.ReqResp.Codec.CBOR
 import           Network.TypedProtocol.ReqResp.Examples
 import           Network.TypedProtocol.ReqResp.Server
 import           Network.TypedProtocol.ReqResp.Type
+import qualified Network.TypedProtocol.ReqResp.Type as ReqResp
 
 import           Ouroboros.Network.Channel (fromChannel)
 import           Ouroboros.Network.ConnectionHandler
@@ -94,7 +97,7 @@ import           Ouroboros.Network.Protocol.Handshake
 import           Ouroboros.Network.Protocol.Handshake.Codec
                      (cborTermVersionDataCodec, noTimeLimitsHandshake,
                      timeLimitsHandshake)
-import           Ouroboros.Network.Protocol.Handshake.Type (Handshake)
+import           Ouroboros.Network.Protocol.Handshake.Type
 import           Ouroboros.Network.Protocol.Handshake.Unversioned
 import           Ouroboros.Network.Protocol.Handshake.Version (Acceptable (..))
 import           Ouroboros.Network.RethrowPolicy
@@ -633,23 +636,25 @@ withBidirectionalConnectionManager name timeouts
 
 
 reqRespSizeLimits :: forall req resp. ProtocolSizeLimits (ReqResp req resp)
-                                                        ByteString
+                                                         ByteString
 reqRespSizeLimits = ProtocolSizeLimits
     { sizeLimitForState
     , dataSize = fromIntegral . LBS.length
     }
   where
-    sizeLimitForState :: forall (pr :: PeerRole) (st :: ReqResp req resp).
-                         PeerHasAgency pr st -> Word
+    sizeLimitForState :: forall (st :: ReqResp req resp).
+                         Sing st -> Word
     sizeLimitForState _ = maxBound
 
 reqRespTimeLimits :: forall req resp. ProtocolTimeLimits (ReqResp req resp)
 reqRespTimeLimits = ProtocolTimeLimits { timeLimitForState }
   where
-    timeLimitForState :: forall (pr :: PeerRole) (st :: ReqResp req resp).
-                         PeerHasAgency pr st -> Maybe DiffTime
-    timeLimitForState (ClientAgency TokIdle) = Nothing
-    timeLimitForState (ServerAgency TokBusy) = Just 60
+    timeLimitForState :: forall (st :: ReqResp req resp).
+                         ActiveState st
+                      => Sing st -> Maybe DiffTime
+    timeLimitForState SingIdle = Nothing
+    timeLimitForState SingBusy = Just 60
+    timeLimitForState a@ReqResp.SingDone = notActiveState a
 
 
 
@@ -666,6 +671,7 @@ runInitiatorProtocols
     :: forall muxMode m a b.
        ( MonadAsync      m
        , MonadCatch      m
+       , MonadMask       m
        , MonadSTM        m
        , MonadThrow (STM m)
        , HasInitiator muxMode ~ True
