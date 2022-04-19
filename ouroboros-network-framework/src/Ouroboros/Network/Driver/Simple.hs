@@ -119,9 +119,10 @@ instance Exception DecoderFailure where
 
 
 driverSimple :: forall ps (pr :: PeerRole) failure bytes m.
-                ( MonadAsync      m
-                , MonadMask       m
-                , MonadThrow (STM m)
+                ( MonadAsync       m
+                , MonadLabelledSTM m
+                , MonadMask        m
+                , MonadThrow  (STM m)
                 , Exception failure
                 )
              => Tracer m (TraceSendRecv ps)
@@ -132,6 +133,7 @@ driverSimple :: forall ps (pr :: PeerRole) failure bytes m.
                   )
 driverSimple tracer Codec{encode, decode} channel@Channel{send} = do
     v <- newTVarIO Nothing
+    labelTVarIO v "driver-var"
     return
       ( Driver { sendMessage
                , recvMessage
@@ -253,9 +255,10 @@ driverSimple tracer Codec{encode, decode} channel@Channel{send} = do
 --
 runPeer
   :: forall ps (st :: ps) pr pl failure bytes m a .
-     ( MonadAsync      m
-     , MonadMask       m
-     , MonadThrow (STM m)
+     ( MonadAsync       m
+     , MonadLabelledSTM m
+     , MonadMask        m
+     , MonadThrow  (STM m)
      , Exception failure
      )
   => Tracer m (TraceSendRecv ps)
@@ -337,9 +340,10 @@ data Role = Client | Server
 -- for example 'createConnectedChannels'.
 --
 runConnectedPeers :: forall ps pr pl pl' st failure bytes m a b.
-                     ( MonadAsync      m
-                     , MonadMask       m
-                     , MonadThrow (STM m)
+                     ( MonadAsync       m
+                     , MonadLabelledSTM m
+                     , MonadMask        m
+                     , MonadThrow  (STM m)
                      , Exception failure
                      )
                   => m (Channel m bytes, Channel m bytes)
@@ -351,9 +355,13 @@ runConnectedPeers :: forall ps pr pl pl' st failure bytes m a b.
 runConnectedPeers createChannels tracer codec client server =
     createChannels >>= \(clientChannel, serverChannel) ->
 
-    (fst <$> runPeer tracerClient codec clientChannel client)
+    (do labelThisThread "client"
+        fst <$> runPeer tracerClient codec clientChannel client
+    )
       `concurrently`
-    (fst <$> runPeer tracerServer codec serverChannel server)
+    (do labelThisThread "server"
+        fst <$> runPeer tracerServer codec serverChannel server
+    )
   where
     tracerClient = contramap ((,) Client) tracer
     tracerServer = contramap ((,) Server) tracer
@@ -363,9 +371,10 @@ runConnectedPeers createChannels tracer codec client server =
 -- 'Handshake' protocol which knows how to decode different versions.
 --
 runConnectedPeersAsymmetric
-    :: ( MonadAsync      m
-       , MonadMask       m
-       , MonadThrow (STM m)
+    :: ( MonadAsync       m
+       , MonadLabelledSTM m
+       , MonadMask        m
+       , MonadThrow  (STM m)
        , Exception failure
        )
     => m (Channel m bytes, Channel m bytes)

@@ -442,6 +442,7 @@ prop_connect (ArbitraryVersions clientVersions serverVersions) =
 --
 prop_channel :: ( MonadAsync m
                 , MonadCatch m
+                , MonadLabelledSTM m
                 , MonadMask  m
                 , MonadST    m
                 , MonadThrow m
@@ -517,6 +518,7 @@ prop_pipe_IO (ArbitraryVersions clientVersions serverVersions) =
 prop_channel_asymmetric
     :: ( MonadAsync m
        , MonadCatch m
+       , MonadLabelledSTM m
        , MonadMask  m
        , MonadST    m
        , MonadThrow m
@@ -842,6 +844,7 @@ prop_acceptOrRefuse_symmetric_NodeToClient (ArbitraryNodeToClientVersions a)
 prop_channel_simultaneous_open
     :: ( MonadAsync m
        , MonadCatch m
+       , MonadLabelledSTM m
        , MonadMask  m
        , MonadST    m
        , MonadThrow m

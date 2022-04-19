@@ -268,6 +268,7 @@ prop_channel_reqresp_IO (ReqRespPayloadWithLimit limit payload) =
 
 prop_channel_ping_pong
   :: ( MonadAsync       m
+     , MonadLabelledSTM m
      , MonadMask        m
      , MonadTest        m
      , MonadThrow  (STM m)
@@ -282,7 +283,7 @@ prop_channel_ping_pong a b n tr = do
     exploreRaces
     (_, r) <- runConnectedPeers (bimap (delayChannel a)
                                        (delayChannel b)
-                                  <$> createConnectedBufferedChannelsUnbounded)
+                                  <$> createConnectedChannels)
                                 tr
                                 codecPingPong client server
     return (r == n)
@@ -326,11 +327,12 @@ prop_channel_ping_pong_IO (NonNegative a) (NonNegative b) (NonNegative n) =
 
 
 prop_channel_ping_pong_stm
-  :: ( MonadAsync      m
-     , MonadMask       m
-     , MonadTest       m
-     , MonadThrow (STM m)
-     , MonadTimer      m
+  :: ( MonadAsync       m
+     , MonadLabelledSTM m
+     , MonadMask        m
+     , MonadTest        m
+     , MonadThrow  (STM m)
+     , MonadTimer       m
      )
   => DiffTime
   -> DiffTime
@@ -394,6 +396,7 @@ prop_channel_ping_pong_stm_IO (NonNegative a) (NonNegative b)
 prop_channel_ping_pong_with_limits
   :: ( MonadAsync         m
      , MonadFork          m
+     , MonadLabelledSTM   m
      , MonadMask          m
      , MonadMonotonicTime m
      , MonadTest          m
@@ -426,6 +429,7 @@ prop_channel_ping_pong_with_limits a b n tr slimits tlimits = do
 prop_channel_ping_pong_with_limits_stm
   :: ( MonadAsync         m
      , MonadFork          m
+     , MonadLabelledSTM   m
      , MonadMask          m
      , MonadMonotonicTime m
      , MonadTest          m
