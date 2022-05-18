@@ -877,7 +877,7 @@ initStandaloneDB dbEnv@DbEnv{..} = do
         ]
     sdbBackingStoreSelector = dbBackingStoreSelector
 
-dbStreamAPI :: forall m. IOLike m => StandaloneDB m -> StreamAPI m TestBlock
+dbStreamAPI :: forall m. IOLike m => StandaloneDB m -> StreamAPI m BlockTest
 dbStreamAPI DB{..} = StreamAPI {..}
   where
     streamAfter ::

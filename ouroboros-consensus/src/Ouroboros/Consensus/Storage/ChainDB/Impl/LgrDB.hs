@@ -53,6 +53,8 @@ module Ouroboros.Consensus.Storage.ChainDB.Impl.LgrDB (
   , mkLgrDB
     -- * Temporarily exported
   , lgrBackingStore
+  , streamAPI
+  , streamAPI'
   ) where
 
 import           Codec.CBOR.Decoding (Decoder)
@@ -460,10 +462,17 @@ streamAPI ::
      forall m blk.
      (IOLike m, HasHeader blk)
   => ImmutableDB m blk -> StreamAPI m blk
-streamAPI immutableDB = StreamAPI streamAfter
+streamAPI = streamAPI' (const $ return False)
+
+streamAPI' ::
+     forall m blk b.
+     (IOLike m, HasHeader blk)
+  => (blk -> m Bool) -- ^ Stop condition
+  -> ImmutableDB m blk
+  -> StreamAPI m blk
+streamAPI' shouldStop immutableDB = StreamAPI streamAfter
   where
-    streamAfter :: HasCallStack
-                => Point blk
+    streamAfter :: Point blk
                 -> (Either (RealPoint blk) (m (NextBlock blk)) -> m a)
                 -> m a
     streamAfter tip k = withRegistry $ \registry -> do
@@ -478,10 +487,17 @@ streamAPI immutableDB = StreamAPI streamAfter
           Left  err -> k $ Left  $ ImmutableDB.missingBlockPoint err
           Right itr -> k $ Right $ streamUsing itr
 
-    streamUsing :: ImmutableDB.Iterator m blk blk -> m (NextBlock blk)
-    streamUsing itr = ImmutableDB.iteratorNext itr >>= \case
-      ImmutableDB.IteratorExhausted  -> return $ NoMoreBlocks
-      ImmutableDB.IteratorResult blk -> return $ NextBlock blk
+    streamUsing :: ImmutableDB.Iterator m blk blk
+                -> m (NextBlock blk)
+    streamUsing itr = do
+        itrResult <- ImmutableDB.iteratorNext itr
+        case itrResult of
+          ImmutableDB.IteratorExhausted -> return NoMoreBlocks
+          ImmutableDB.IteratorResult b  -> do
+            stop <- shouldStop b
+            if stop
+            then return NoMoreBlocks
+            else return (NextBlock b)
 
 {-------------------------------------------------------------------------------
   Previously applied blocks

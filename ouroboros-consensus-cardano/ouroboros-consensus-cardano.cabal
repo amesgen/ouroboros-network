@@ -121,3 +121,29 @@ executable db-analyser
                        -threaded
                        -rtsopts
                        "-with-rtsopts=-T -I0 -N2 -A16m"
+
+executable db-checker
+  hs-source-dirs:      tools/db-checker
+  main-is:             Main.hs
+  build-depends:       base
+                     , bytestring
+                     , cardano-binary
+                     , cardano-crypto-wrapper
+                     , cardano-ledger-core
+                     , cborg
+                     , containers
+                     , mtl
+                     , optparse-applicative
+
+                     , ouroboros-consensus
+                     , ouroboros-consensus-cardano
+                     , lmdb-simple
+                     , lmdb
+                     , cardano-slotting
+                     , io-classes
+
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       "-with-rtsopts=-T -I0 -N2 -A16m"

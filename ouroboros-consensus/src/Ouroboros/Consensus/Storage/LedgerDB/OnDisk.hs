@@ -173,8 +173,12 @@ module Ouroboros.Consensus.Storage.LedgerDB.OnDisk (
   , TraceEvent (..)
   , TraceReplayEvent (..)
   , decorateReplayTracerWithGoal
+  , decorateReplayTracerWithStart
     -- * For testing
   , newBackingStore
+  , streamAll
+  , replayStartingWith
+  , restoreBackingStore
   ) where
 
 import qualified Codec.CBOR.Write as CBOR

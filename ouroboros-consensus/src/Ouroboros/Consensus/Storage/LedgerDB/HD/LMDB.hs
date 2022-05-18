@@ -18,6 +18,9 @@ module Ouroboros.Consensus.Storage.LedgerDB.HD.LMDB
   , LMDBLimits
   , TraceDb(..)
   , defaultLMDBLimits -- TODO this is just for convenience, should remove
+  -- * Required for db-checker
+  , LmdbBox(..)
+  , DbState(..)
   ) where
 
 import qualified Codec.Serialise as S (Serialise(..))
