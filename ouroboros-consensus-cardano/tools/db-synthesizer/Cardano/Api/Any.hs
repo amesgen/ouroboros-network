@@ -166,11 +166,12 @@ class (HasTypeProxy a, SerialiseAsRawBytes a) => SerialiseAsBech32 a where
     bech32PrefixesPermitted :: AsType a -> [Text]
 
 
-serialiseToBech32 :: SerialiseAsBech32 a => a -> Text
+-- serialiseToBech32 :: SerialiseAsBech32 a => a -> Text
+serialiseToBech32 :: a -> Text
 serialiseToBech32 _ = error "serialiseToBech32: stub not implemented"
 
-deserialiseFromBech32 :: SerialiseAsBech32 a
-                      => AsType a -> Text -> Either Bech32DecodeError a
+-- deserialiseFromBech32 :: SerialiseAsBech32 a => AsType a -> Text -> Either Bech32DecodeError a
+deserialiseFromBech32 :: AsType a -> Text -> Either Bech32DecodeError a
 deserialiseFromBech32 _ _ = error "deserialiseFromBech32: stub not implemented"
 
 data Bech32DecodeError

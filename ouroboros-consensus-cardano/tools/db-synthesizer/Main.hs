@@ -4,9 +4,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | This tool aims to synthesize a valid ChainDB that can be used during node / cluster startup.
---
--- Its main motivation is the ability to efficiently and consistently skip ahead eras when running
--- benchmarks and tests on later eras.
 module Main (main) where
 
 
@@ -50,8 +47,7 @@ import           Control.Monad (when)
 import           Data.Bool (bool)
 import           Data.List (sort)
 import           System.Directory (createDirectoryIfMissing, doesDirectoryExist,
-                     doesFileExist, listDirectory, makeAbsolute,
-                     removePathForcibly)
+                     listDirectory, makeAbsolute, removePathForcibly)
 import           System.Exit
 import           System.FilePath (takeDirectory, (</>))
 
@@ -167,10 +163,7 @@ clearChainDB :: FilePath -> IO ()
 clearChainDB db =
     doesDirectoryExist db >>= bool create clear
   where
-    create =
-        doesFileExist db >>= bool
-            (createDirectoryIfMissing True db)
-            (fail $ "clearChainDB: '" ++ db ++ "' exists as file. Aborting.")
+    create = createDirectoryIfMissing True db
     clear = do
         ls <- listDirectory db
         if sort ls == ["immutable", "ledger", "volatile"]

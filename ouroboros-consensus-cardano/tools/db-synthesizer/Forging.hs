@@ -48,7 +48,7 @@ data ForgeState =
   ForgeState {
     counter     :: !Int
   , currentSlot :: !SlotNo
-  , forged      :: ![SlotNo]
+  , forged      :: !Int
   }
 
 -- just a shim; we don't need to lift into WithEarlyExit monad
@@ -65,8 +65,8 @@ runForge
     -> IO ()
 runForge ForgeOptions{..} chainDB blockForging cfg = do
     putStrLn $ "--> will process " ++ show foptSlotCount ++ " slots"
-    ForgeState{forged} <- go $ ForgeState foptSlotCount 0 []
-    putStrLn $ "--> filled and adopted a block in " ++ show (length forged) ++ " slots:\n" ++ show forged
+    ForgeState{forged} <- go $ ForgeState foptSlotCount 0 0
+    putStrLn $ "--> forged and adopted a block in " ++ show forged ++ " slots"
   where
     go :: ForgeState -> IO ForgeState
     go forgeState@ForgeState{..}
@@ -75,7 +75,7 @@ runForge ForgeOptions{..} chainDB blockForging cfg = do
         let forgeState' = forgeState {counter = counter - 1, currentSlot = succ currentSlot}
         in try (goSlot currentSlot) >>= \case
           Left SomeException{} -> go forgeState'
-          _                    -> go forgeState' {forged = currentSlot : forged}
+          _                    -> go forgeState' {forged = forged + 1}
 
     exitEarly' = fail
 

@@ -41,7 +41,7 @@ import qualified Data.ByteString.Lazy as LBS
 import qualified Data.List as List
 import           Data.Maybe (fromMaybe)
 import           Data.String (IsString)
-import           Data.Text (Text)
+-- import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, withObject,
@@ -122,9 +122,10 @@ instance FromJSON TextEnvelope where
 textEnvelopeJSONConfig :: ()
 textEnvelopeJSONConfig = ()
 
+{-
 textEnvelopeJSONKeyOrder :: Text -> Text -> Ordering
--- textEnvelopeJSONKeyOrder = keyOrder ["type", "description", "cborHex"]
-textEnvelopeJSONKeyOrder = compare
+textEnvelopeJSONKeyOrder = keyOrder ["type", "description", "cborHex"]
+-}
 
 textEnvelopeRawCBOR :: TextEnvelope -> ByteString
 textEnvelopeRawCBOR = teRawCBOR
