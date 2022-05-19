@@ -24,7 +24,7 @@ module Ouroboros.Consensus.Storage.ChainDB.Impl.ChainSel (
 import           Control.Exception (assert)
 import           Control.Monad.Except
 import           Control.Monad.Trans.State.Strict
-import           Control.Tracer (Tracer, contramap, nullTracer, traceWith)
+import           Control.Tracer (Tracer, nullTracer, traceWith)
 import           Data.Function (on)
 import           Data.List (partition, sortBy)
 import           Data.List.NonEmpty (NonEmpty)
@@ -60,6 +60,7 @@ import           Ouroboros.Consensus.Util.IOLike
 import           Ouroboros.Consensus.Util.STM (WithFingerprint (..))
 import           Ouroboros.Consensus.Util.TentativeState
 
+import           Data.Functor.Contravariant ((>$<))
 import           Ouroboros.Consensus.Fragment.Diff (ChainDiff (..))
 import qualified Ouroboros.Consensus.Fragment.Diff as Diff
 import           Ouroboros.Consensus.Fragment.ValidatedDiff
@@ -86,6 +87,7 @@ import           Ouroboros.Consensus.Storage.ImmutableDB (ImmutableDB)
 import qualified Ouroboros.Consensus.Storage.ImmutableDB as ImmutableDB
 import           Ouroboros.Consensus.Storage.VolatileDB (VolatileDB)
 import qualified Ouroboros.Consensus.Storage.VolatileDB as VolatileDB
+import           Ouroboros.Consensus.Util.Enclose (encloseWith)
 
 -- | Perform the initial chain selection based on the tip of the ImmutableDB
 -- and the contents of the VolatileDB.
@@ -205,10 +207,9 @@ initialChainSelection immutableDB volatileDB lgrDB tracer cfg varInvalid
             , futureCheck
             , blockCache = BlockCache.empty
             , curChainAndLedger
-            , trace = traceWith
-                (contramap (InitChainSelValidation) tracer)
+            , validationTracer = InitChainSelValidation >$< tracer
               -- initial chain selection is not concerned about pipelining
-            , tracePipelining = traceWith nullTracer
+            , pipeliningTracer = nullTracer
             , varTentativeState
             , varTentativeHeader
             , punish = Nothing
@@ -244,7 +245,7 @@ addBlockAsync
   -> blk
   -> m (AddBlockPromise m blk)
 addBlockAsync CDB { cdbTracer, cdbBlocksToAdd } =
-    addBlockToAdd (contramap TraceAddBlockEvent cdbTracer) cdbBlocksToAdd
+    addBlockToAdd (TraceAddBlockEvent >$< cdbTracer) cdbBlocksToAdd
 
 -- | Add a block to the ChainDB, /synchronously/.
 --
@@ -286,17 +287,17 @@ addBlockSync cdb@CDB {..} BlockToAdd { blockToAdd = b, .. } = do
     -- ### Ignore
     newTip <- if
       | olderThanK hdr isEBB immBlockNo -> do
-        trace $ IgnoreBlockOlderThanK (blockRealPoint b)
+        traceWith addBlockTracer $ IgnoreBlockOlderThanK (blockRealPoint b)
         deliverWrittenToDisk False
         chainSelectionForFutureBlocks cdb BlockCache.empty
 
       | isMember (blockHash b) -> do
-        trace $ IgnoreBlockAlreadyInVolatileDB (blockRealPoint b)
+        traceWith addBlockTracer $ IgnoreBlockAlreadyInVolatileDB (blockRealPoint b)
         deliverWrittenToDisk True
         chainSelectionForFutureBlocks cdb BlockCache.empty
 
       | Just (InvalidBlockInfo reason _) <- Map.lookup (blockHash b) invalid -> do
-        trace $ IgnoreInvalidBlock (blockRealPoint b) reason
+        traceWith addBlockTracer $ IgnoreInvalidBlock (blockRealPoint b) reason
         deliverWrittenToDisk False
 
         -- We wouldn't know the block is invalid if its prefix was invalid,
@@ -309,8 +310,9 @@ addBlockSync cdb@CDB {..} BlockToAdd { blockToAdd = b, .. } = do
 
       -- The remaining cases
       | otherwise -> do
-        VolatileDB.putBlock cdbVolatileDB b
-        trace $ AddedBlockToVolatileDB (blockRealPoint b) (blockNo b) isEBB
+        let traceEv = AddedBlockToVolatileDB (blockRealPoint b) (blockNo b) isEBB
+        encloseWith (traceEv >$< addBlockTracer) $
+          VolatileDB.putBlock cdbVolatileDB b
         deliverWrittenToDisk True
 
         let blockCache = BlockCache.singleton b
@@ -322,8 +324,8 @@ addBlockSync cdb@CDB {..} BlockToAdd { blockToAdd = b, .. } = do
 
     deliverProcessed newTip
   where
-    trace :: TraceAddBlockEvent blk -> m ()
-    trace = traceWith (contramap TraceAddBlockEvent cdbTracer)
+    addBlockTracer :: Tracer m (TraceAddBlockEvent blk)
+    addBlockTracer = TraceAddBlockEvent >$< cdbTracer
 
     hdr :: Header blk
     hdr = getHeader b
@@ -376,6 +378,11 @@ olderThanK hdr isEBB immBlockNo
   where
     bNo = blockNo hdr
 
+-- | When we switch to a new selected chain, we are either extending the current
+-- chain by adding blocks on top or we are switching to a fork.
+data ChainSwitchType = AddingBlocks | SwitchingToAFork
+  deriving (Show, Eq)
+
 -- | Return the new tip.
 chainSelectionForFutureBlocks
   :: ( IOLike m
@@ -395,11 +402,11 @@ chainSelectionForFutureBlocks cdb@CDB{..} blockCache = do
       writeTVar cdbFutureBlocks Map.empty
       return $ Map.elems futureBlocks
     forM_ futureBlockHeaders $ \(hdr, punish) -> do
-      trace $ ChainSelectionForFutureBlock (headerRealPoint hdr)
+      traceWith tracer $ ChainSelectionForFutureBlock (headerRealPoint hdr)
       chainSelectionForBlock cdb blockCache hdr punish
     atomically $ Query.getTipPoint cdb
   where
-    trace = traceWith (contramap TraceAddBlockEvent cdbTracer)
+    tracer = TraceAddBlockEvent >$< cdbTracer
 
 -- | Trigger chain selection for the given block.
 --
@@ -478,12 +485,12 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
       -- The chain might have grown since we added the block such that the
       -- block is older than @k@.
       | olderThanK hdr isEBB immBlockNo -> do
-        trace $ IgnoreBlockOlderThanK p
+        traceWith addBlockTracer $ IgnoreBlockOlderThanK p
         return tipPoint
 
       -- We might have validated the block in the meantime
       | Just (InvalidBlockInfo reason _) <- Map.lookup (headerHash hdr) invalid -> do
-        trace $ IgnoreInvalidBlock p reason
+        traceWith addBlockTracer $ IgnoreInvalidBlock p reason
 
         -- We wouldn't know the block is invalid if its prefix was invalid,
         -- hence 'InvalidBlockPunishment.BlockItself'.
@@ -496,17 +503,17 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
       -- The block @b@ fits onto the end of our current chain
       | pointHash tipPoint == headerPrevHash hdr -> do
         -- ### Add to current chain
-        trace (TryAddToCurrentChain p)
+        traceWith addBlockTracer (TryAddToCurrentChain p)
         addToCurrentChain succsOf' curChainAndLedger
 
       | Just diff <- Paths.isReachable lookupBlockInfo' curChain p -> do
         -- ### Switch to a fork
-        trace (TrySwitchToAFork p diff)
+        traceWith addBlockTracer (TrySwitchToAFork p diff)
         switchToAFork succsOf' lookupBlockInfo' curChainAndLedger diff
 
       | otherwise -> do
         -- ### Store but don't change the current chain
-        trace (StoreButDontChange p)
+        traceWith addBlockTracer (StoreButDontChange p)
         return tipPoint
 
     -- Note that we may have extended the chain, but have not trimmed it to
@@ -522,8 +529,8 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
     isEBB :: IsEBB
     isEBB = headerToIsEBB hdr
 
-    trace :: TraceAddBlockEvent blk -> m ()
-    trace = traceWith (contramap TraceAddBlockEvent cdbTracer)
+    addBlockTracer :: Tracer m (TraceAddBlockEvent blk)
+    addBlockTracer = TraceAddBlockEvent >$< cdbTracer
 
     mkChainSelEnv :: ChainAndLedger blk -> ChainSelEnv m blk
     mkChainSelEnv curChainAndLedger = ChainSelEnv
@@ -539,10 +546,10 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
       , futureCheck           = cdbCheckInFuture
       , blockCache            = blockCache
       , curChainAndLedger     = curChainAndLedger
-      , trace                 =
-          traceWith (contramap (TraceAddBlockEvent . AddBlockValidation) cdbTracer)
-      , tracePipelining       =
-          traceWith (contramap (TraceAddBlockEvent . PipeliningEvent) cdbTracer)
+      , validationTracer      =
+          TraceAddBlockEvent . AddBlockValidation >$< cdbTracer
+      , pipeliningTracer       =
+          TraceAddBlockEvent . PipeliningEvent >$< cdbTracer
       , punish                = Just (p, punish)
       }
 
@@ -601,7 +608,7 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
                 switchTo
                   validatedChainDiff
                   (varTentativeHeader chainSelEnv)
-                  AddedToCurrentChain
+                  AddingBlocks
       where
         chainSelEnv = mkChainSelEnv curChainAndLedger
         curChain    = VF.validatedFragment curChainAndLedger
@@ -662,7 +669,7 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
                 switchTo
                   validatedChainDiff
                   (varTentativeHeader chainSelEnv)
-                  SwitchedToAFork
+                  SwitchingToAFork
       where
         chainSelEnv = mkChainSelEnv curChainAndLedger
         curChain    = VF.validatedFragment curChainAndLedger
@@ -714,16 +721,15 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
          -- ^ Chain and ledger to switch to
       -> StrictTVar m (StrictMaybe (Header blk))
          -- ^ Tentative header
-      -> (    [LedgerEvent blk]
-           -> NewTipInfo blk
-           -> AnchoredFragment (Header blk)
-           -> AnchoredFragment (Header blk)
-           -> TraceAddBlockEvent blk
-         )
-         -- ^ Given the 'NewTipInfo', the previous chain, and the new chain,
-         -- return the event to trace when we switched to the new chain.
+      -> ChainSwitchType
       -> m (Point blk)
-    switchTo vChainDiff varTentativeHeader mkTraceEvent = do
+    switchTo vChainDiff varTentativeHeader chainSwitchType = do
+        traceWith addBlockTracer $
+            ChangingSelection
+          $ castPoint
+          $ AF.headPoint
+          $ getSuffix
+          $ getChainDiff vChainDiff
         (curChain, newChain, events, prevTentativeHeader) <- atomically $ do
           curChain  <- readTVar         cdbChain -- Not Query.getCurrentChain!
           curLedger <- LgrDB.getCurrent cdbLgrDB
@@ -745,20 +751,32 @@ chainSelectionForBlock cdb@CDB{..} blockCache hdr punish = do
               -- Clear the tentative header
               prevTentativeHeader <- swapTVar varTentativeHeader SNothing
 
-              -- Update the followers
-              --
-              -- 'Follower.switchFork' needs to know the intersection point
-              -- (@ipoint@) between the old and the current chain.
-              let ipoint = castPoint $ Diff.getAnchorPoint chainDiff
-              followerHandles <- Map.elems <$> readTVar cdbFollowers
-              forM_ followerHandles $ \followerHandle ->
-                fhSwitchFork followerHandle ipoint newChain
+              case chainSwitchType of
+                -- When adding blocks, the intersection point of the old and new
+                -- tentative/selected chain is not receding, in which case
+                -- `fhSwitchFork` is unnecessary. In the case of pipelining a
+                -- block, it would even result in rolling back by one block and
+                -- rolling forward again.
+                AddingBlocks      -> pure ()
+                SwitchingToAFork -> do
+                  -- Update the followers
+                  --
+                  -- 'Follower.switchFork' needs to know the intersection point
+                  -- (@ipoint@) between the old and the current chain.
+                  let ipoint = castPoint $ Diff.getAnchorPoint chainDiff
+                  followerHandles <- Map.elems <$> readTVar cdbFollowers
+                  forM_ followerHandles $ \followerHandle ->
+                    fhSwitchFork followerHandle ipoint newChain
 
               return (curChain, newChain, events, prevTentativeHeader)
 
-        trace $ mkTraceEvent events (mkNewTipInfo newLedger) curChain newChain
-        whenJust (strictMaybeToMaybe prevTentativeHeader) $
-          trace . PipeliningEvent . OutdatedTentativeHeader
+        let mkTraceEvent = case chainSwitchType of
+              AddingBlocks     -> AddedToCurrentChain
+              SwitchingToAFork -> SwitchedToAFork
+        traceWith addBlockTracer $
+          mkTraceEvent events (mkNewTipInfo newLedger) curChain newChain
+        whenJust (strictMaybeToMaybe prevTentativeHeader) $ traceWith $
+          PipeliningEvent . OutdatedTentativeHeader >$< addBlockTracer
         traceWith cdbTraceLedger newLedger
 
         return $ castPoint $ AF.headPoint newChain
@@ -804,8 +822,8 @@ getKnownHeaderThroughCache volatileDB hash = gets (Map.lookup hash) >>= \case
 -- | Environment used by 'chainSelection' and related functions.
 data ChainSelEnv m blk = ChainSelEnv
     { lgrDB                 :: LgrDB m blk
-    , trace                 :: TraceValidationEvent blk -> m ()
-    , tracePipelining       :: TracePipeliningEvent blk -> m ()
+    , validationTracer      :: Tracer m (TraceValidationEvent blk)
+    , pipeliningTracer      :: Tracer m (TracePipeliningEvent blk)
     , bcfg                  :: BlockConfig blk
     , varInvalid            :: StrictTVar m (WithFingerprint (InvalidBlocks blk))
     , varFutureBlocks       :: StrictTVar m (FutureBlocks m blk)
@@ -930,11 +948,12 @@ chainSelection chainSelEnv chainDiffs =
                   (\ts -> isPipelineable bcfg ts candidate)
               <$> readTVarIO varTentativeState
             whenJust (strictMaybeToMaybe mTentativeHeader) $ \tentativeHeader -> do
-              atomically $ writeTVar varTentativeHeader $ SJust tentativeHeader
-              -- As we are only extending the existing chain, the intersection
-              -- point is not receding, in which case fhSwitchFork is not
-              -- necessary.
-              tracePipelining $ SetTentativeHeader tentativeHeader
+              let setTentative = SetTentativeHeader tentativeHeader
+              encloseWith (setTentative >$< pipeliningTracer) $
+                atomically $ writeTVar varTentativeHeader $ SJust tentativeHeader
+                -- As we are only extending the existing chain, the intersection
+                -- point is not receding, in which case fhSwitchFork is not
+                -- necessary.
             pure mTentativeHeader
 
         -- | Clear a tentative header that turned out to be invalid. Also, roll
@@ -948,7 +967,7 @@ chainSelection chainSelEnv chainDiffs =
               forTentativeFollowers $ \followerHandle -> do
                 let curTipPoint = castPoint $ AF.headPoint curChain
                 fhSwitchFork followerHandle curTipPoint curChain
-            tracePipelining $ TrapTentativeHeader tentativeHeader
+            traceWith pipeliningTracer $ TrapTentativeHeader tentativeHeader
           where
             forTentativeFollowers f = getTentativeFollowers >>= mapM_ f
 
@@ -1039,9 +1058,9 @@ ledgerValidateCandidate chainSelEnv chainDiff@(ChainDiff rollback suffix) =
       LgrDB.ValidateLedgerError (LgrDB.AnnLedgerError ledger' pt e) -> do
         let lastValid  = LgrDB.currentPoint ledger'
             chainDiff' = Diff.truncate (castPoint lastValid) chainDiff
-        trace (InvalidBlock e pt)
+        traceWith validationTracer (InvalidBlock e pt)
         addInvalidBlock e pt
-        trace (ValidCandidate (Diff.getSuffix chainDiff'))
+        traceWith validationTracer (ValidCandidate (Diff.getSuffix chainDiff'))
 
         -- punish the peer who sent a block if it is invalid or a block from its
         -- prefix is invalid
@@ -1070,19 +1089,19 @@ ledgerValidateCandidate chainSelEnv chainDiff@(ChainDiff rollback suffix) =
         return $ ValidatedDiff.new chainDiff' ledger'
 
       LgrDB.ValidateSuccessful ledger' -> do
-        trace (ValidCandidate suffix)
+        traceWith validationTracer (ValidCandidate suffix)
         return $ ValidatedDiff.new chainDiff ledger'
   where
     ChainSelEnv {
         lgrDB
-      , trace
+      , validationTracer
       , curChainAndLedger
       , blockCache
       , varInvalid
       , punish
       } = chainSelEnv
 
-    traceUpdate = trace . UpdateLedgerDbTraceEvent
+    traceUpdate = traceWith $ UpdateLedgerDbTraceEvent >$< validationTracer
 
     curLedger :: LedgerDB' blk
     curLedger = VF.validatedLedger curChainAndLedger
@@ -1134,9 +1153,10 @@ futureCheckCandidate chainSelEnv validatedChainDiff =
           atomically $ modifyTVar varFutureBlocks $ flip Map.union futureBlocks
           -- Trace the original @suffix@, as it contains the headers from the
           -- future
-          trace $ CandidateContainsFutureBlocks
-                    suffix
-                    (InFuture.inFutureHeader <$> inNearFuture)
+          traceWith validationTracer $
+            CandidateContainsFutureBlocks
+              suffix
+              (InFuture.inFutureHeader <$> inNearFuture)
 
         -- Record any blocks exceeding the clock skew as invalid
         unless (null exceedClockSkew) $ do
@@ -1149,7 +1169,7 @@ futureCheckCandidate chainSelEnv validatedChainDiff =
                 ]
           atomically $ modifyTVar varInvalid $ \(WithFingerprint invalid fp) ->
             WithFingerprint (Map.union invalid invalidBlocks) (succ fp)
-          trace $
+          traceWith validationTracer $
             CandidateContainsFutureBlocksExceedingClockSkew
               -- Trace the original @suffix@, as it contains the headers
               -- from the future
@@ -1168,7 +1188,7 @@ futureCheckCandidate chainSelEnv validatedChainDiff =
         -- 'AnchoredFragment'.
         return $ Left $ Diff.truncate (castPoint (AF.headPoint suffix')) chainDiff
   where
-    ChainSelEnv { trace, varInvalid, varFutureBlocks, futureCheck } =
+    ChainSelEnv { validationTracer, varInvalid, varFutureBlocks, futureCheck } =
       chainSelEnv
 
     ValidatedChainDiff chainDiff@(ChainDiff _ suffix) _ = validatedChainDiff
