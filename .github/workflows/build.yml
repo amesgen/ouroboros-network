@@ -80,12 +80,39 @@ jobs:
         echo "LIBSODIUM_PATH=$LIBSODIUM_PATH"
         echo "$LIBSODIUM_PATH" >> $GITHUB_PATH
 
+    - name: Install lmdb (Windows)
+      if: matrix.os == 'windows-latest'
+      env:
+        RUNNER_TEMP: ${{ runner.temp }}
+      run: |
+        echo "RUNNER_TEMP=$RUNNER_TEMP"
+        cd "$RUNNER_TEMP"
+
+        RUNNER_TEMP_FWD="$(echo "$RUNNER_TEMP" | sed 's|\\|/|g')"
+
+        curl -Ls \
+          --connect-timeout 5 \
+          --max-time 10 \
+          --retry 5 \
+          --retry-delay 0 \
+          --retry-max-time 40 \
+          https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-lmdb-0.9.29-1-any.pkg.tar.zst -o lmdb-0.9.29.pkg.tar.zst
+
+        tar xvf lmdb-0.9.29.pkg.tar.zst
+        sed -i "s|/usr|$RUNNER_TEMP_FWD\/|g" mingw64/lib/pkgconfig/lmdb.pc
+        cp -r mingw64/* libsodium-win64
+
+        export LMDB_PATH="$LIBSODIUM_PATH"
+        echo "LMDB_PATH=$LMDB_PATH"
+        echo "$LMDB_PATH" >> $GITHUB_PATH
+
     - name: Install build environment
       if: matrix.os == 'ubuntu-20.04'
       run: |
         sudo apt-get update
         sudo apt-get -y install libsodium23 libsodium-dev
         sudo apt-get -y install libsystemd0 libsystemd-dev
+        sudo apt-get -y install liblmdb-dev
         sudo apt-get -y remove --purge software-properties-common
         sudo apt-get -y autoremove
 
