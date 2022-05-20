@@ -100,12 +100,9 @@ jobs:
 
         tar xvf lmdb-0.9.29.pkg.tar.zst
         sed -i "s|/usr|$RUNNER_TEMP_FWD\/|g" mingw64/lib/pkgconfig/lmdb.pc
+        cp -r mingw64/* libsodium-win64
 
-        export PKG_CONFIG_PATH="$(readlink -f mingw64/lib/pkgconfig | sed 's|^/d|D:|g' | tr / '\\')"
-        echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
-        echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
-
-        export LMDB_PATH="$(readlink -f mingw64/bin | sed 's|^/d|D:|g' | tr / '\\')"
+        export LMDB_PATH="$LIBSODIUM_PATH"
         echo "LMDB_PATH=$LMDB_PATH"
         echo "$LMDB_PATH" >> $GITHUB_PATH
 
