@@ -6,11 +6,11 @@
 </span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier">WithEq</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
 </span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-8"></span><span>
-</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier">Data.Function</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier">on</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier">GHC.Generics</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier">Generic</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier">Data.Function</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier">on</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier">GHC.Generics</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier">Generic</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-11"></span><span>
-</span><span id="line-12"></span><span id="local-6989586621679277258"><span id="local-6989586621679277259"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="Id"><span class="annot"><a href="Test.Util.WithEq.html#Id"><span class="hs-identifier hs-var">Id</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Id"><span class="annot"><a href="Test.Util.WithEq.html#Id"><span class="hs-identifier hs-var">Id</span></a></span></span><span> </span><span class="annot"><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-type">Word</span></a></span><span>
-</span><span id="line-13"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>   </span><span class="hs-special">(</span><span id="local-6989586621679277251"><span id="local-6989586621679277253"><span id="local-6989586621679277255"><span class="annot"><span class="annottext">Int -&gt; Id -&gt; ShowS
+</span><span id="line-12"></span><span id="local-6989586621679284756"><span id="local-6989586621679284757"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="Id"><span class="annot"><a href="Test.Util.WithEq.html#Id"><span class="hs-identifier hs-var">Id</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Id"><span class="annot"><a href="Test.Util.WithEq.html#Id"><span class="hs-identifier hs-var">Id</span></a></span></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-type">Word</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>   </span><span class="hs-special">(</span><span id="local-6989586621679284749"><span id="local-6989586621679284751"><span id="local-6989586621679284753"><span class="annot"><span class="annottext">Int -&gt; Id -&gt; ShowS
 [Id] -&gt; ShowS
 Id -&gt; String
 (Int -&gt; Id -&gt; ShowS)
@@ -23,7 +23,7 @@ show :: Id -&gt; String
 $cshow :: Id -&gt; String
 showsPrec :: Int -&gt; Id -&gt; ShowS
 $cshowsPrec :: Int -&gt; Id -&gt; ShowS
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Id -&gt; Rep Id x)
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Id -&gt; Rep Id x)
 -&gt; (forall x. Rep Id x -&gt; Id) -&gt; Generic Id
 forall x. Rep Id x -&gt; Id
 forall x. Id -&gt; Rep Id x
@@ -31,15 +31,15 @@ forall a.
 (forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
 $cto :: forall x. Rep Id x -&gt; Id
 $cfrom :: forall x. Id -&gt; Rep Id x
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-14"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">newtype</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679277243"><span id="local-6989586621679277245"><span class="annot"><span class="annottext">Id -&gt; Id -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">newtype</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679284741"><span id="local-6989586621679284743"><span class="annot"><span class="annottext">Id -&gt; Id -&gt; Bool
 (Id -&gt; Id -&gt; Bool) -&gt; (Id -&gt; Id -&gt; Bool) -&gt; Eq Id
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Id -&gt; Id -&gt; Bool
 $c/= :: Id -&gt; Id -&gt; Bool
 == :: Id -&gt; Id -&gt; Bool
 $c== :: Id -&gt; Id -&gt; Bool
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679277227"><span id="local-6989586621679277229"><span id="local-6989586621679277231"><span id="local-6989586621679277233"><span id="local-6989586621679277235"><span id="local-6989586621679277237"><span id="local-6989586621679277239"><span class="annot"><span class="annottext">Eq Id
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679284725"><span id="local-6989586621679284727"><span id="local-6989586621679284729"><span id="local-6989586621679284731"><span id="local-6989586621679284733"><span id="local-6989586621679284735"><span id="local-6989586621679284737"><span class="annot"><span class="annottext">Eq Id
 Eq Id
 -&gt; (Id -&gt; Id -&gt; Ordering)
 -&gt; (Id -&gt; Id -&gt; Bool)
@@ -77,7 +77,7 @@ $c&lt; :: Id -&gt; Id -&gt; Bool
 compare :: Id -&gt; Id -&gt; Ordering
 $ccompare :: Id -&gt; Id -&gt; Ordering
 $cp1Ord :: Eq Id
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></a></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679277210"><span id="local-6989586621679277212"><span id="local-6989586621679277214"><span id="local-6989586621679277216"><span id="local-6989586621679277218"><span id="local-6989586621679277220"><span id="local-6989586621679277222"><span id="local-6989586621679277224"><span class="annot"><span class="annottext">Int -&gt; Id
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></a></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679284708"><span id="local-6989586621679284710"><span id="local-6989586621679284712"><span id="local-6989586621679284714"><span id="local-6989586621679284716"><span id="local-6989586621679284718"><span id="local-6989586621679284720"><span id="local-6989586621679284722"><span class="annot"><span class="annottext">Int -&gt; Id
 Id -&gt; Int
 Id -&gt; [Id]
 Id -&gt; Id
@@ -118,14 +118,14 @@ pred :: Id -&gt; Id
 $cpred :: Id -&gt; Id
 succ :: Id -&gt; Id
 $csucc :: Id -&gt; Id
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></a></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679277205"><span id="local-6989586621679277207"><span class="annot"><span class="annottext">Id
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></a></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679284703"><span id="local-6989586621679284705"><span class="annot"><span class="annottext">Id
 Id -&gt; Id -&gt; Bounded Id
 forall a. a -&gt; a -&gt; Bounded a
 maxBound :: Id
 $cmaxBound :: Id
 minBound :: Id
 $cminBound :: Id
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Bounded</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679277190"><span id="local-6989586621679277192"><span id="local-6989586621679277194"><span id="local-6989586621679277196"><span id="local-6989586621679277198"><span id="local-6989586621679277200"><span id="local-6989586621679277202"><span class="annot"><span class="annottext">Integer -&gt; Id
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Bounded</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679284688"><span id="local-6989586621679284690"><span id="local-6989586621679284692"><span id="local-6989586621679284694"><span id="local-6989586621679284696"><span id="local-6989586621679284698"><span id="local-6989586621679284700"><span class="annot"><span class="annottext">Integer -&gt; Id
 Id -&gt; Id
 Id -&gt; Id -&gt; Id
 (Id -&gt; Id -&gt; Id)
@@ -159,20 +159,20 @@ $c* :: Id -&gt; Id -&gt; Id
 $c- :: Id -&gt; Id -&gt; Id
 + :: Id -&gt; Id -&gt; Id
 $c+ :: Id -&gt; Id -&gt; Id
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Num</span></a></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Num</span></a></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-15"></span><span>
 </span><span id="line-16"></span><span class="hs-comment">-- | Use this type to add an `Eq` instance for types that don't have one or</span><span>
 </span><span id="line-17"></span><span class="hs-comment">-- for which one doesn't make sense, but an `Eq` instance is needed for</span><span>
 </span><span id="line-18"></span><span class="hs-comment">-- testing purposes.</span><span>
 </span><span id="line-19"></span><span class="hs-comment">--</span><span>
 </span><span id="line-20"></span><span class="hs-comment">-- E.g., `ImmutableDB.Iterator` needs an `Eq` instance in the q-s-m tests</span><span>
-</span><span id="line-21"></span><span id="local-6989586621679277187"><span id="local-6989586621679277188"></span></span><span class="hs-keyword">data</span><span> </span><span id="WithEq"><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier hs-var">WithEq</span></a></span></span><span> </span><span id="local-6989586621679277261"><span class="annot"><a href="#local-6989586621679277261"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="WithEq"><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier hs-var">WithEq</span></a></span></span><span>
+</span><span id="line-21"></span><span id="local-6989586621679284685"><span id="local-6989586621679284686"></span></span><span class="hs-keyword">data</span><span> </span><span id="WithEq"><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier hs-var">WithEq</span></a></span></span><span> </span><span id="local-6989586621679284759"><span class="annot"><a href="#local-6989586621679284759"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="WithEq"><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier hs-var">WithEq</span></a></span></span><span>
 </span><span id="line-22"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="getId"><span class="annot"><span class="annottext">WithEq a -&gt; Id
 </span><a href="Test.Util.WithEq.html#getId"><span class="hs-identifier hs-var hs-var">getId</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Test.Util.WithEq.html#Id"><span class="hs-identifier hs-type">Id</span></a></span><span>
 </span><span id="line-23"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="unWithEq"><span class="annot"><span class="annottext">WithEq a -&gt; a
-</span><a href="Test.Util.WithEq.html#unWithEq"><span class="hs-identifier hs-var hs-var">unWithEq</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679277261"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><a href="Test.Util.WithEq.html#unWithEq"><span class="hs-identifier hs-var hs-var">unWithEq</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679284759"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-24"></span><span>    </span><span class="hs-special">}</span><span>
-</span><span id="line-25"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679277178"><span id="local-6989586621679277180"><span id="local-6989586621679277182"><span class="annot"><span class="annottext">Int -&gt; WithEq a -&gt; ShowS
+</span><span id="line-25"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679284676"><span id="local-6989586621679284678"><span id="local-6989586621679284680"><span class="annot"><span class="annottext">Int -&gt; WithEq a -&gt; ShowS
 [WithEq a] -&gt; ShowS
 WithEq a -&gt; String
 (Int -&gt; WithEq a -&gt; ShowS)
@@ -188,7 +188,7 @@ show :: WithEq a -&gt; String
 $cshow :: forall a. Show a =&gt; WithEq a -&gt; String
 showsPrec :: Int -&gt; WithEq a -&gt; ShowS
 $cshowsPrec :: forall a. Show a =&gt; Int -&gt; WithEq a -&gt; ShowS
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. WithEq a -&gt; Rep (WithEq a) x)
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. WithEq a -&gt; Rep (WithEq a) x)
 -&gt; (forall x. Rep (WithEq a) x -&gt; WithEq a) -&gt; Generic (WithEq a)
 forall x. Rep (WithEq a) x -&gt; WithEq a
 forall x. WithEq a -&gt; Rep (WithEq a) x
@@ -198,16 +198,16 @@ forall a x. Rep (WithEq a) x -&gt; WithEq a
 forall a x. WithEq a -&gt; Rep (WithEq a) x
 $cto :: forall a x. Rep (WithEq a) x -&gt; WithEq a
 $cfrom :: forall a x. WithEq a -&gt; Rep (WithEq a) x
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></a></span><span class="hs-special">)</span><span>
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-26"></span><span>
-</span><span id="line-27"></span><span id="local-6989586621679277175"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679277172"><span class="annot"><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-type">Eq</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier hs-type">WithEq</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679277175"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-28"></span><span>  </span><span id="local-6989586621679277171"><span class="annot"><span class="annottext">== :: WithEq a -&gt; WithEq a -&gt; Bool
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/ghc-prim-0.6.1/src"><span class="hs-operator hs-var hs-var hs-var hs-var">(==)</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Id -&gt; Id -&gt; Bool
+</span><span id="line-27"></span><span id="local-6989586621679284673"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679284670"><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/ghc-prim-0.6.1/src"><span class="hs-identifier hs-type">Eq</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Test.Util.WithEq.html#WithEq"><span class="hs-identifier hs-type">WithEq</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679284673"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621679284669"><span class="annot"><span class="annottext">== :: WithEq a -&gt; WithEq a -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/ghc-prim-0.6.1/src"><span class="hs-operator hs-var hs-var hs-var hs-var">(==)</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Id -&gt; Id -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/ghc-prim-0.6.1/src"><span class="hs-operator hs-var">(==)</span></a></span><span> </span><span class="annot"><span class="annottext">(Id -&gt; Id -&gt; Bool)
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/ghc-prim-0.6.1/src"><span class="hs-operator hs-var">(==)</span></a></span><span> </span><span class="annot"><span class="annottext">(Id -&gt; Id -&gt; Bool)
 -&gt; (WithEq a -&gt; Id) -&gt; WithEq a -&gt; WithEq a -&gt; Bool
 forall b c a. (b -&gt; b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; a -&gt; c
-</span><a href="../file:///home/runner/.ghcup/ghc/8.10.4/share/doc/ghc-8.10.4/html/libraries/base-4.14.1.0/src"><span class="hs-operator hs-var">`on`</span></a></span><span> </span><span class="annot"><span class="annottext">WithEq a -&gt; Id
+</span><a href="../file:///usr/local/.ghcup/ghc/8.10.7/share/doc/ghc-8.10.7/html/libraries/base-4.14.3.0/src"><span class="hs-operator hs-var">`on`</span></a></span><span> </span><span class="annot"><span class="annottext">WithEq a -&gt; Id
 forall a. WithEq a -&gt; Id
 </span><a href="Test.Util.WithEq.html#getId"><span class="hs-identifier hs-var hs-var">getId</span></a></span></span><span>
 </span><span id="line-29"></span></pre></body></html>
