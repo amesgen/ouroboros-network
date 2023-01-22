@@ -3,6 +3,9 @@ name: "Haddock documentation"
 on:
   schedule:
     - cron:  '0 0 * * *'
+  push:
+    branches:
+      - amesgen/fix-haddock-ci
 
 jobs:
   haddocks:
@@ -122,7 +125,10 @@ jobs:
         git config --local user.email "marcin.szamotulski@iohk.io"
         git config --local user.name ${{ github.actor }}
         git fetch origin gh-pages:gh-pages
+        git status
         git checkout gh-pages
+        git status
+        ls -la
         cp -r ./haddocks/* ./
         rm -rf haddocks
         git add -A
